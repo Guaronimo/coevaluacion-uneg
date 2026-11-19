@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coevaluación UNEG | #1866211 Estadística y Probabilidad</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            uneg: {
+              950: '#06142e',
+              900: '#0a1f44',
+              800: '#102e63',
+              700: '#17418c',
+              600: '#1e54b5',
+              100: '#e8effd',
+              50: '#f4f7fe'
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Modal de Confirmación Personalizado (Sin alert/confirm nativos) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <h3 id="confirm-title" class="text-lg font-bold text-slate-900">Confirmar acción</h3>
+      </div>
+      <p id="confirm-message" class="text-sm text-slate-600 mb-6 leading-relaxed">¿Está seguro de realizar esta acción?</p>
+      <div class="flex justify-end gap-3">
+        <button id="confirm-cancel-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
+          Cancelar
+        </button>
+        <button id="confirm-ok-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition shadow-sm">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encabezado Institucional UNEG -->
+  <header class="bg-gradient-to-r from-uneg-950 via-uneg-900 to-uneg-700 text-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 py-5 sm:px-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-base font-extrabold tracking-tight shadow-inner">
+            UNEG
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-blue-200">
+              Universidad Nacional Experimental de Guayana • Sede Tumeremo
+            </p>
+            <h1 class="text-lg sm:text-xl font-bold leading-snug mt-0.5">
+              Instrumento Digital de Coevaluación Estudiantil
+            </h1>
+            <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-blue-100 mt-1">
+              <span class="inline-flex items-center gap-1"><i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>Ciencias Fiscales (Sem. 2 - Sec. 1)</span>
+              <span>•</span>
+              <span class="inline-flex items-center gap-1"><i data-lucide="book-open" class="w-3.5 h-3.5"></i>#1866211 Estadística y Probabilidad</span>
+              <span>•</span>
+              <span>Lapso 2026-02</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 self-start md:self-center">
+          <span id="sync-status-badge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-blue-100 border border-white/15">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Conectando nube...
+          </span>
+          <button type="button" onclick="copyShareLink()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-md transition active:scale-95">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            <span>Copiar Enlace</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Metadatos Institucionales -->
+      <div class="mt-4 pt-3.5 border-t border-white/15 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+        <div class="bg-white/10 rounded-xl px-3.5 py-2 flex items-center gap-2.5">
+          <i data-lucide="user-check" class="w-4 h-4 text-blue-300 shrink-0"></i>
+          <div>
+            <span class="text-blue-200 block text-[11px]">Docente de la Asignatura:</span>
+            <strong class="font-semibold text-white">Gerónimo Rafael Centeno Rendón</strong>
+          </div>
+        </div>
+        <div class="bg-white/10 rounded-xl px-3.5 py-2 flex items-center gap-2.5">
+          <i data-lucide="scale" class="w-4 h-4 text-amber-300 shrink-0"></i>
+          <div>
+            <span class="text-blue-200 block text-[11px]">Rúbrica y Ponderación Oficial:</span>
+            <strong class="font-semibold text-white">Base 20 pts • Corte 15% (Máx. 1.50 pts)</strong>
+          </div>
+        </div>
+        <div class="bg-white/10 rounded-xl px-3.5 py-2 flex items-center gap-2.5">
+          <i data-lucide="users" class="w-4 h-4 text-emerald-300 shrink-0"></i>
+          <div>
+            <span class="text-blue-200 block text-[11px]">Matrícula de Sección:</span>
+            <strong class="font-semibold text-white">10 Estudiantes Inscritos (Sec. 1)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación Principal de Pestañas -->
+  <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex space-x-2 py-2.5" role="tablist">
+        <button id="tab-student" type="button" onclick="switchTab('student')"
+          class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition bg-uneg-800 text-white shadow-sm">
+          <i data-lucide="clipboard-edit" class="w-4 h-4"></i>
+          <span>Formulario de Coevaluación</span>
+        </button>
+        <button id="tab-teacher" type="button" onclick="switchTab('teacher')"
+          class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:bg-slate-100">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>Panel de Totalización Docente</span>
+          <span id="badge-count" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-uneg-100 text-uneg-800 font-extrabold">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:px-6">
+
+    <!-- ===================================================================== -->
+    <!-- PESTAÑA 1: FORMULARIO DE COEVALUACIÓN                                 -->
+    <!-- ===================================================================== -->
+    <section id="view-student" class="space-y-6">
+
+      <form id="coeval-form" class="space-y-6" novalidate>
+
+        <!-- PASO 1: DATOS DEL EVALUADOR -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-uneg-800 text-white text-xs flex items-center justify-center font-bold">1</span>
+              <span>Identificación del Estudiante Evaluador (Compañero que evalúa)</span>
+            </h2>
+            <span class="text-xs font-medium text-slate-400">Campos obligatorios (*)</span>
+          </div>
+
+          <!-- Selector Desplegable de Estudiante Evaluador (Base Oficial 10 Estudiantes) -->
+          <div class="bg-uneg-50/70 rounded-xl p-4 border border-uneg-100 space-y-3">
+            <label for="eval-student-select" class="block text-xs font-bold uppercase tracking-wide text-uneg-900">
+              Seleccione su Nombre del Listado Oficial (Sección 1) <span class="text-red-500">*</span>
+            </label>
+            <select id="eval-student-select" onchange="handleEvaluatorSelectChange()"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-uneg-600/30 text-sm font-bold text-slate-900 bg-white focus:ring-2 focus:ring-uneg-600 focus:border-uneg-600 outline-none transition shadow-2xs">
+              <option value="">-- Seleccione su nombre de la lista de inscritos --</option>
+              <option value="V-36.305.454">ACEVEDO JIMENEZ, HECYDER LEOMAR — V-36.305.454 (Grupo 1)</option>
+              <option value="V-30.898.417">CADENAS MARTINEZ, STHEFANY ELIZABETH — V-30.898.417 (Grupo 1)</option>
+              <option value="V-31.869.224">FRUCTUOSO GIL, SARAY GERMANIA — V-31.869.224 (Grupo 3)</option>
+              <option value="V-33.326.706">MUÑOZ TISOY, CRISMARYS DE LOS ANGELES — V-33.326.706 (Grupo 2)</option>
+              <option value="V-27.957.966">NUÑEZ MUÑOZ, ANA YUNIERLIS — V-27.957.966 (Grupo 3)</option>
+              <option value="V-34.729.813">RIVAS SOARES, JOSANYELIS NALEANNA — V-34.729.813 (Sin grupo asignado)</option>
+              <option value="V-34.542.019">RODRIGUEZ QUERALLES, MIRIANYILI LUISMAR — V-34.542.019 (Grupo 2)</option>
+              <option value="V-31.324.719">SILVA MORILLO, WILFREMAR NAZARETH — V-31.324.719 (Grupo 4)</option>
+              <option value="V-31.207.656">SOLAR BOLAÑO, THAMARA NICOLE — V-31.207.656 (Grupo 4)</option>
+              <option value="V-32.961.830">VELASQUEZ NARANJO, FHIORELLA DE JESUS — V-32.961.830 (Grupo 1)</option>
+              <option value="MANUAL">Otro estudiante / Invitado (Ingreso manual)</option>
+            </select>
+          </div>
+
+          <!-- Tarjetas / Campos de Datos Autorrellenados (o Manuales) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div id="manual-name-wrapper" class="hidden md:col-span-5">
+              <label for="eval-name" class="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                Apellidos y Nombres (Manual) <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="eval-name" placeholder="Ej. Pérez Gómez, María José"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-uneg-600 focus:border-uneg-600 outline-none transition" />
+            </div>
+
+            <div id="eval-cedula-col" class="md:col-span-6">
+              <label for="eval-cedula" class="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                Cédula de Identidad <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="eval-cedula" readonly placeholder="Se completa automáticamente al elegir estudiante"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 font-mono font-semibold text-sm focus:ring-2 focus:ring-uneg-600 focus:border-uneg-600 outline-none transition" />
+            </div>
+
+            <div id="eval-group-col" class="md:col-span-6">
+              <label for="eval-group" class="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                Grupo al que Pertenece <span class="text-red-500">*</span>
+              </label>
+              <select id="eval-group"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white font-semibold text-slate-800 focus:ring-2 focus:ring-uneg-600 focus:border-uneg-600 outline-none transition">
+                <option value="">Seleccione su grupo...</option>
+                <option value="Grupo 1">Grupo 1</option>
+                <option value="Grupo 2">Grupo 2</option>
+                <option value="Grupo 3">Grupo 3</option>
+                <option value="Grupo 4">Grupo 4</option>
+                <option value="Grupo 5">Grupo 5</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Aviso Anti-Autoevaluación -->
+          <div id="self-eval-alert" class="hidden rounded-xl bg-amber-50 border border-amber-300 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start gap-2.5">
+              <i data-lucide="shield-alert" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+              <div class="text-xs text-amber-900">
+                <p class="font-bold">Protección Anti-Autoevaluación Activa</p>
+                <p id="self-eval-alert-text" class="mt-0.5 text-amber-800">
+                  Su nombre forma parte del equipo expositor seleccionado, por lo que ha sido excluido automáticamente de la lista de evaluados para garantizar coevaluación entre pares.
+                </p>
+              </div>
+            </div>
+            <button type="button" id="toggle-self-eval-btn" onclick="toggleAllowSelfEvaluation()"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 transition shrink-0 self-start sm:self-center">
+              Habilitar autoevaluación (Docente)
+            </button>
+          </div>
+        </div>
+
+        <!-- PASO 2: CONFIGURACIÓN DE LA EXPOSICIÓN (TEMA, GRUPO E INTEGRANTES) -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-uneg-800 text-white text-xs flex items-center justify-center font-bold">2</span>
+              <span>Configuración de la Exposición a Evaluar</span>
+            </h2>
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-uneg-700 bg-uneg-50 px-3 py-1 rounded-full border border-uneg-100">
+              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+              <span>Selectores interactivos vinculados</span>
+            </span>
+          </div>
+
+          <!-- Selectores A (Grupo Expositor) y B (Tema / Contenido Asignado) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- Selector B: Grupo Expositor Evaluado -->
+            <div class="lg:col-span-4">
+              <label for="target-group-select" class="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                Grupo Expositor Evaluado <span class="text-red-500">*</span>
+              </label>
+              <select id="target-group-select" onchange="handleGroupChange()"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-uneg-900 bg-uneg-50/60 focus:bg-white focus:ring-2 focus:ring-uneg-600 outline-none transition">
+                <option value="Grupo 1" selected>Grupo 1</option>
+                <option value="Grupo 2">Grupo 2</option>
+                <option value="Grupo 3">Grupo 3</option>
+                <option value="Grupo 4">Grupo 4</option>
+                <option value="Grupo 5">Grupo 5</option>
+              </select>
+              <p class="text-[11px] text-slate-500 mt-1">Preselecciona el tema e integrantes sugeridos.</p>
+            </div>
+
+            <!-- Selector A: Tema / Contenido Asignado -->
+            <div class="lg:col-span-8">
+              <label for="target-topic-select" class="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                Tema / Contenido Asignado <span class="text-red-500">*</span>
+              </label>
+              <select id="target-topic-select" onchange="handleTopicChange()"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-uneg-600 outline-none transition">
+                <option value="1.- Historia de la Estadística." selected>1.- Historia de la Estadística.</option>
+                <option value="2.- Aplicación de la estadística en las ciencias sociales y económicas.">2.- Aplicación de la estadística en las ciencias sociales y económicas.</option>
+                <option value="3.- La Estadística y la informática.">3.- La Estadística y la informática.</option>
+                <option value="4.- Etapas de un estudio estadístico.">4.- Etapas de un estudio estadístico.</option>
+                <option value="5.- Clasificación de la Estadística.">5.- Clasificación de la Estadística.</option>
+                <option value="CUSTOM">Otro / Tema personalizado...</option>
+              </select>
+
+              <!-- Campo de texto para Tema Personalizado -->
+              <div id="custom-topic-wrapper" class="hidden mt-2.5">
+                <input type="text" id="custom-topic-input" placeholder="Escriba el título del tema personalizado a evaluar..."
+                  class="w-full px-3.5 py-2 rounded-xl border border-blue-300 bg-blue-50/40 text-sm focus:bg-white focus:ring-2 focus:ring-uneg-600 outline-none transition" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Selector C: Gestor de Integrantes del Grupo a Evaluar -->
+          <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200/90 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="user-check-2" class="w-4 h-4 text-uneg-700"></i>
+                  <span>Integrantes del Grupo a Evaluar</span>
+                  <span id="selected-members-count" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-uneg-800 text-white">3</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  Marque o desmarque los estudiantes que exponen en este equipo, o utilice el buscador rápido.
+                </p>
+              </div>
+
+              <button type="button" onclick="toggleExternalStudentForm()"
+                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-300 text-uneg-800 hover:bg-uneg-50 shadow-sm transition self-start sm:self-auto">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                <span>+ Agregar estudiante externo / no listado</span>
+              </button>
+            </div>
+
+            <!-- Panel desplegable para agregar estudiante externo -->
+            <div id="external-student-panel" class="hidden bg-white rounded-xl p-4 border border-blue-200 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-uneg-900 flex items-center gap-1.5">
+                  <i data-lucide="plus-circle" class="w-4 h-4 text-uneg-600"></i>
+                  Registrar integrante no listado en la sección
+                </span>
+                <button type="button" onclick="toggleExternalStudentForm()" class="text-slate-400 hover:text-slate-600">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="sm:col-span-4">
+                  <input type="text" id="ext-cedula" placeholder="Cédula (Ej. V-30.123.456)"
+                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-uneg-600" />
+                </div>
+                <div class="sm:col-span-5">
+                  <input type="text" id="ext-name" placeholder="Apellidos y Nombres completos"
+                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-uneg-600" />
+                </div>
+                <div class="sm:col-span-3">
+                  <button type="button" onclick="addExternalStudent()"
+                    class="w-full h-full py-2 px-3 rounded-xl bg-uneg-800 hover:bg-uneg-900 text-white text-xs font-bold transition">
+                    Añadir al Equipo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selector desplegable rápido para añadir cualquier estudiante de la sección -->
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="relative flex-1">
+                <select id="quick-add-student-select" onchange="quickAddFromDropdown()"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm font-medium text-slate-700 focus:ring-2 focus:ring-uneg-600 outline-none transition">
+                  <option value="">+ Selector rápido: añadir estudiante inscrito de la sección...</option>
+                </select>
+              </div>
+              <button type="button" onclick="resetGroupDefaultMembers()"
+                class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 transition shrink-0">
+                Restaurar equipo base
+              </button>
+            </div>
+
+            <!-- Cuadrícula de Checkboxes con los 10 estudiantes inscritos + externos -->
+            <div id="roster-checkbox-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+
+        <!-- PASO 3: TARJETAS DE CALIFICACIÓN POR CADA INTEGRANTE SELECCIONADO -->
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-uneg-800 text-white text-xs flex items-center justify-center font-bold">3</span>
+              <span>Calificación Individual según Rúbrica Oficial (Base 20 pts)</span>
+            </h2>
+            <span id="rubric-context-badge" class="text-xs font-semibold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+              Grupo 1 • 1. Historia de la Estadística
+            </span>
+          </div>
+
+          <!-- Contenedor dinámico de tarjetas de calificación -->
+          <div id="evaluation-cards-container" class="space-y-5"></div>
+        </div>
+
+        <!-- BOTÓN DE ENVÍO -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-600 text-center sm:text-left">
+            <p class="font-bold text-slate-900 text-sm">¿Finalizó la evaluación de todos los integrantes?</p>
+            <p class="mt-0.5">Al enviar, los puntajes se sincronizan inmediatamente con el Panel de Totalización Docente.</p>
+          </div>
+          <button type="submit" id="submit-btn"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition active:scale-95">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Enviar Coevaluación</span>
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Pantalla de Confirmación tras Enviar -->
+      <div id="submission-success-card" class="hidden bg-white rounded-2xl p-8 border border-emerald-200 shadow-md text-center max-w-xl mx-auto">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="check-circle-2" class="w-9 h-9"></i>
+        </div>
+        <h3 class="text-xl font-extrabold text-slate-900">¡Coevaluación Registrada Exitosamente!</h3>
+        <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+          Su evaluación ha sido procesada y sumada al consolidado de la asignatura <strong>Estadística y Probabilidad</strong>.
+        </p>
+        <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+          <button type="button" onclick="resetFormForNewSubmission()"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-uneg-800 hover:bg-uneg-900 text-white text-sm font-semibold transition">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Evaluar otro grupo o tema</span>
+          </button>
+          <button type="button" onclick="switchTab('teacher')"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold transition">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>Ver Totalización Docente</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PESTAÑA 2: PANEL DE TOTALIZACIÓN DOCENTE                              -->
+    <!-- ===================================================================== -->
+    <section id="view-teacher" class="hidden space-y-6">
+
+      <!-- Barra de Filtros y Exportación -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="calculator" class="w-5 h-5 text-uneg-700"></i>
+              <span>Totalización y Promedios Consolidados</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Filtre por Grupo Evaluado o Tema para auditar notas y descargar actas en Excel (CSV).
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" onclick="exportConsolidatedCSV()"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Exportar Resumen CSV</span>
+            </button>
+
+            <button type="button" onclick="exportDetailedCSV()"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-uneg-800 hover:bg-uneg-900 text-white text-xs font-bold shadow-sm transition">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Exportar Detalle CSV</span>
+            </button>
+
+            <button type="button" onclick="window.print()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>Imprimir</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros por Grupo Evaluado y Tema -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+          <div>
+            <label for="filter-group" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Filtrar por Grupo Evaluado
+            </label>
+            <select id="filter-group" onchange="renderTeacherDashboard()"
+              class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-uneg-600">
+              <option value="ALL">Todos los Grupos (Grupo 1 - Grupo 5)</option>
+              <option value="Grupo 1">Grupo 1</option>
+              <option value="Grupo 2">Grupo 2</option>
+              <option value="Grupo 3">Grupo 3</option>
+              <option value="Grupo 4">Grupo 4</option>
+              <option value="Grupo 5">Grupo 5</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filter-topic" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Filtrar por Tema / Contenido
+            </label>
+            <select id="filter-topic" onchange="renderTeacherDashboard()"
+              class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-uneg-600">
+              <option value="ALL">Todos los Temas Evaluados</option>
+              <option value="1.- Historia de la Estadística.">1.- Historia de la Estadística.</option>
+              <option value="2.- Aplicación de la estadística en las ciencias sociales y económicas.">2.- Aplicación de la estadística en las ciencias sociales y económicas.</option>
+              <option value="3.- La Estadística y la informática.">3.- La Estadística y la informática.</option>
+              <option value="4.- Etapas de un estudio estadístico.">4.- Etapas de un estudio estadístico.</option>
+              <option value="5.- Clasificación de la Estadística.">5.- Clasificación de la Estadística.</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas KPI Resumen -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Coevaluaciones Filtradas</span>
+          <p id="kpi-total-submissions" class="text-3xl font-extrabold text-slate-900 mt-1.5">0</p>
+          <p class="text-xs text-slate-500 mt-1">Planillas enviadas por estudiantes</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Promedio General (Base 20)</span>
+          <p id="kpi-avg-20" class="text-3xl font-extrabold text-uneg-800 mt-1.5">0.00 <span class="text-sm font-semibold text-slate-400">/ 20</span></p>
+          <p class="text-xs text-slate-500 mt-1">Media aritmética de evaluados</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Ponderación Promedio (15%)</span>
+          <p id="kpi-avg-weighted" class="text-3xl font-extrabold text-emerald-600 mt-1.5">0.00 <span class="text-sm font-semibold text-slate-400">/ 1.50</span></p>
+          <p class="text-xs text-slate-500 mt-1">Aporte directo a calificación final</p>
+        </div>
+      </div>
+
+      <!-- TABLA CONSOLIDADA POR ESTUDIANTE EVALUADO -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Tabla Consolidada por Estudiante Evaluado</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Promedios detallados por cada criterio de la rúbrica oficial UNEG.</p>
+          </div>
+          <span id="consolidated-row-count" class="text-xs font-bold text-uneg-800 bg-uneg-100 px-3 py-1 rounded-full self-start sm:self-auto">
+            0 registros consolidados
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                <th class="py-3.5 px-3.5">Cédula</th>
+                <th class="py-3.5 px-3.5">Apellidos y Nombres</th>
+                <th class="py-3.5 px-3">Grupo</th>
+                <th class="py-3.5 px-3">Tema Evaluado</th>
+                <th class="py-3.5 px-2.5 text-center" title="Cantidad de evaluaciones recibidas">Eval.</th>
+                <th class="py-3.5 px-2.5 text-center">Dominio (7)</th>
+                <th class="py-3.5 px-2.5 text-center">Oratoria (5)</th>
+                <th class="py-3.5 px-2.5 text-center">Recursos (5)</th>
+                <th class="py-3.5 px-2.5 text-center">Tiempo (3)</th>
+                <th class="py-3.5 px-3.5 text-center bg-blue-50/80 text-uneg-900">Nota (20)</th>
+                <th class="py-3.5 px-3.5 text-center bg-emerald-50/80 text-emerald-900">15% (1.50)</th>
+              </tr>
+            </thead>
+            <tbody id="consolidated-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABLA DE AUDITORÍA (DETALLE INDIVIDUAL DE CADA COEVALUACIÓN) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Auditoría Individual de Registros Enviados</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Detalle fila por fila de quién evaluó a quién, fecha/hora y observaciones.</p>
+          </div>
+          <span id="audit-row-count" class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full self-start sm:self-auto">
+            0 evaluaciones individuales
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                <th class="py-3 px-3.5">Fecha / Hora</th>
+                <th class="py-3 px-3.5">Evaluador (Grupo)</th>
+                <th class="py-3 px-3.5">Estudiante Evaluado</th>
+                <th class="py-3 px-3">Grupo / Tema</th>
+                <th class="py-3 px-2.5 text-center">Dom / Ora / Rec / Tie</th>
+                <th class="py-3 px-3 text-center">Total (20)</th>
+                <th class="py-3 px-3.5">Observaciones</th>
+                <th class="py-3 px-3 text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="audit-table-body" class="divide-y divide-slate-200 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Pie de Página -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p>UNEG • Sede Tumeremo • Instrumento Oficial de Coevaluación</p>
+      <p>Asignatura: #1866211 Estadística y Probabilidad — Lapso 2026-02</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- LÓGICA DE APLICACIÓN + SINCRONIZACIÓN FIRESTORE Y RESPALDO LOCAL        -->
+  <!-- ======================================================================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // -------------------------------------------------------------------------
+    // 1. DATOS MAESTROS DE LA SECCIÓN Y GRUPOS (UNEG 2026-02)
+    // -------------------------------------------------------------------------
+    const SECTION_ROSTER = [
+      { id: 'V-36.305.454', cedula: 'V-36.305.454', name: 'ACEVEDO JIMENEZ, HECYDER LEOMAR', defaultGroup: 'Grupo 1' },
+      { id: 'V-30.898.417', cedula: 'V-30.898.417', name: 'CADENAS MARTINEZ, STHEFANY ELIZABETH', defaultGroup: 'Grupo 1' },
+      { id: 'V-31.869.224', cedula: 'V-31.869.224', name: 'FRUCTUOSO GIL, SARAY GERMANIA', defaultGroup: 'Grupo 3' },
+      { id: 'V-33.326.706', cedula: 'V-33.326.706', name: 'MUÑOZ TISOY, CRISMARYS DE LOS ANGELES', defaultGroup: 'Grupo 2' },
+      { id: 'V-27.957.966', cedula: 'V-27.957.966', name: 'NUÑEZ MUÑOZ, ANA YUNIERLIS', defaultGroup: 'Grupo 3' },
+      { id: 'V-34.729.813', cedula: 'V-34.729.813', name: 'RIVAS SOARES, JOSANYELIS NALEANNA', defaultGroup: '' },
+      { id: 'V-34.542.019', cedula: 'V-34.542.019', name: 'RODRIGUEZ QUERALLES, MIRIANYILI LUISMAR', defaultGroup: 'Grupo 2' },
+      { id: 'V-31.324.719', cedula: 'V-31.324.719', name: 'SILVA MORILLO, WILFREMAR NAZARETH', defaultGroup: 'Grupo 4' },
+      { id: 'V-31.207.656', cedula: 'V-31.207.656', name: 'SOLAR BOLAÑO, THAMARA NICOLE', defaultGroup: 'Grupo 4' },
+      { id: 'V-32.961.830', cedula: 'V-32.961.830', name: 'VELASQUEZ NARANJO, FHIORELLA DE JESUS', defaultGroup: 'Grupo 1' }
+    ];
+
+    const GROUP_PRESETS = {
+      'Grupo 1': {
+        suggestedTopic: '1.- Historia de la Estadística.',
+        defaultMemberIds: ['V-30.898.417', 'V-36.305.454', 'V-32.961.830']
+      },
+      'Grupo 2': {
+        suggestedTopic: '2.- Aplicación de la estadística en las ciencias sociales y económicas.',
+        defaultMemberIds: ['V-34.542.019', 'V-33.326.706']
+      },
+      'Grupo 3': {
+        suggestedTopic: '3.- La Estadística y la informática.',
+        defaultMemberIds: ['V-31.869.224', 'V-27.957.966']
+      },
+      'Grupo 4': {
+        suggestedTopic: '4.- Etapas de un estudio estadístico.',
+        defaultMemberIds: ['V-31.324.719', 'V-31.207.656']
+      },
+      'Grupo 5': {
+        suggestedTopic: '5.- Clasificación de la Estadística.',
+        defaultMemberIds: []
+      }
+    };
+
+    const RUBRIC_CRITERIA = [
+      { key: 'dominio', label: 'Dominio del Tema', max: 7, desc: 'Conocimiento profundo y seguridad conceptual sin limitarse a leer.' },
+      { key: 'oratoria', label: 'Claridad y Oratoria', max: 5, desc: 'Fluidez verbal, tono de voz adecuado y vocabulario técnico.' },
+      { key: 'recursos', label: 'Recursos de Apoyo', max: 5, desc: 'Material visual organizado, legible y pertinente.' },
+      { key: 'tiempo', label: 'Tiempo y Defensa', max: 3, desc: 'Uso eficiente del tiempo y respuestas acertadas a preguntas.' }
+    ];
+
+    // Estado de la aplicación
+    let externalStudents = [];
+    let selectedMemberIds = new Set(GROUP_PRESETS['Grupo 1'].defaultMemberIds);
+    let currentEvaluatorId = '';
+    let allowSelfEvaluation = false;
+    let draftScores = {}; // Preserva puntuaciones al marcar/desmarcar integrantes
+    let allSubmissions = [];
+
+    // Variables Firebase
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let useCloud = false;
+    const LOCAL_BACKUP_KEY = 'uneg_coeval_backup_v4_2026';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'uneg-estadistica-coeval';
+
+    // -------------------------------------------------------------------------
+    // 3. GESTOR DE EVALUADOR, ANTI-AUTOEVALUACIÓN Y SELECCIÓN DE INTEGRANTES
+    // -------------------------------------------------------------------------
+    function getFullRoster() {
+      return [...SECTION_ROSTER, ...externalStudents];
+    }
+
+    function getResolvedTopic() {
+      const topicSelect = document.getElementById('target-topic-select').value;
+      if (topicSelect === 'CUSTOM') {
+        return document.getElementById('custom-topic-input').value.trim() || 'Tema personalizado';
+      }
+      return topicSelect;
+    }
+
+    function enforceSelfEvaluationPolicy() {
+      const alertBox = document.getElementById('self-eval-alert');
+      const alertBtn = document.getElementById('toggle-self-eval-btn');
+
+      if (currentEvaluatorId && currentEvaluatorId !== 'MANUAL') {
+        const isInSelectedMembers = selectedMemberIds.has(currentEvaluatorId);
+        if (isInSelectedMembers && !allowSelfEvaluation) {
+          selectedMemberIds.delete(currentEvaluatorId);
+        }
+        if (isInSelectedMembers || allowSelfEvaluation) {
+          alertBox.classList.remove('hidden');
+          alertBtn.textContent = allowSelfEvaluation
+            ? 'Bloquear autoevaluación (Recomendado)'
+            : 'Habilitar autoevaluación (Docente)';
+        } else {
+          alertBox.classList.add('hidden');
+        }
+      } else {
+        alertBox.classList.add('hidden');
+      }
+    }
+
+    window.handleEvaluatorSelectChange = function() {
+      const selectVal = document.getElementById('eval-student-select').value;
+      const manualNameWrapper = document.getElementById('manual-name-wrapper');
+      const nameInput = document.getElementById('eval-name');
+      const cedulaInput = document.getElementById('eval-cedula');
+      const groupSelect = document.getElementById('eval-group');
+      const cedulaCol = document.getElementById('eval-cedula-col');
+      const groupCol = document.getElementById('eval-group-col');
+
+      if (!selectVal) {
+        currentEvaluatorId = '';
+        manualNameWrapper.classList.add('hidden');
+        nameInput.value = '';
+        cedulaInput.value = '';
+        cedulaInput.readOnly = true;
+        cedulaInput.classList.add('bg-slate-50');
+        groupSelect.value = '';
+        cedulaCol.className = 'md:col-span-6';
+        groupCol.className = 'md:col-span-6';
+      } else if (selectVal === 'MANUAL') {
+        currentEvaluatorId = 'MANUAL';
+        manualNameWrapper.classList.remove('hidden');
+        cedulaCol.className = 'md:col-span-4';
+        groupCol.className = 'md:col-span-3';
+        nameInput.value = '';
+        cedulaInput.value = '';
+        cedulaInput.readOnly = false;
+        cedulaInput.classList.remove('bg-slate-50');
+        groupSelect.value = '';
+        nameInput.focus();
+      } else {
+        const student = SECTION_ROSTER.find((s) => s.id === selectVal);
+        currentEvaluatorId = selectVal;
+        manualNameWrapper.classList.add('hidden');
+        cedulaCol.className = 'md:col-span-6';
+        groupCol.className = 'md:col-span-6';
+        if (student) {
+          nameInput.value = student.name;
+          cedulaInput.value = student.cedula;
+          cedulaInput.readOnly = true;
+          cedulaInput.classList.add('bg-slate-50');
+          groupSelect.value = student.defaultGroup || '';
+        }
+      }
+
+      enforceSelfEvaluationPolicy();
+      renderRosterSelector();
+      renderEvaluationCards();
+    };
+
+    window.handleGroupChange = function() {
+      const group = document.getElementById('target-group-select').value;
+      const preset = GROUP_PRESETS[group];
+      if (preset) {
+        document.getElementById('target-topic-select').value = preset.suggestedTopic;
+        document.getElementById('custom-topic-wrapper').classList.add('hidden');
+        selectedMemberIds = new Set(preset.defaultMemberIds);
+      }
+      enforceSelfEvaluationPolicy();
+      renderRosterSelector();
+      renderEvaluationCards();
+    };
+
+    window.handleTopicChange = function() {
+      const selectVal = document.getElementById('target-topic-select').value;
+      const customWrapper = document.getElementById('custom-topic-wrapper');
+      if (selectVal === 'CUSTOM') {
+        customWrapper.classList.remove('hidden');
+        document.getElementById('custom-topic-input').focus();
+      } else {
+        customWrapper.classList.add('hidden');
+      }
+      updateContextBadge();
+    };
+
+    document.getElementById('custom-topic-input').addEventListener('input', updateContextBadge);
+
+    function updateContextBadge() {
+      const group = document.getElementById('target-group-select').value;
+      const topic = getResolvedTopic();
+      const badge = document.getElementById('rubric-context-badge');
+      if (badge) {
+        badge.textContent = `${group} • ${topic}`;
+      }
+    }
+
+    window.resetGroupDefaultMembers = function() {
+      const group = document.getElementById('target-group-select').value;
+      const preset = GROUP_PRESETS[group];
+      if (preset) {
+        selectedMemberIds = new Set(preset.defaultMemberIds);
+        enforceSelfEvaluationPolicy();
+        renderRosterSelector();
+        renderEvaluationCards();
+        showToast(`Integrantes base del ${group} restaurados.`, 'info');
+      }
+    };
+
+    window.toggleStudentSelection = function(studentId) {
+      if (!allowSelfEvaluation && currentEvaluatorId && studentId === currentEvaluatorId) {
+        showToast('No puede autoevaluarse. Use el botón de autorización docente si es requerido.', 'warning');
+        renderRosterSelector();
+        return;
+      }
+      if (selectedMemberIds.has(studentId)) {
+        selectedMemberIds.delete(studentId);
+      } else {
+        selectedMemberIds.add(studentId);
+      }
+      renderRosterSelector();
+      renderEvaluationCards();
+    };
+
+    window.quickAddFromDropdown = function() {
+      const dropdown = document.getElementById('quick-add-student-select');
+      const studentId = dropdown.value;
+      if (!studentId) return;
+      if (!allowSelfEvaluation && currentEvaluatorId && studentId === currentEvaluatorId) {
+        showToast('El estudiante evaluador está excluido de autoevaluación.', 'warning');
+        dropdown.value = '';
+        return;
+      }
+      selectedMemberIds.add(studentId);
+      dropdown.value = '';
+      renderRosterSelector();
+      renderEvaluationCards();
+      showToast('Estudiante añadido al grupo a evaluar.', 'success');
+    };
+
+    window.toggleExternalStudentForm = function() {
+      const panel = document.getElementById('external-student-panel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        document.getElementById('ext-cedula').focus();
+      }
+    };
+
+    window.addExternalStudent = function() {
+      const cedulaInput = document.getElementById('ext-cedula');
+      const nameInput = document.getElementById('ext-name');
+      const cedula = cedulaInput.value.trim().toUpperCase() || 'S/C';
+      const name = nameInput.value.trim().toUpperCase();
+
+      if (!name || name.length < 3) {
+        showToast('Ingrese los apellidos y nombres del estudiante externo.', 'warning');
+        nameInput.focus();
+        return;
+      }
+
+      const newId = `EXT-${Date.now()}`;
+      externalStudents.push({ id: newId, cedula, name, isExternal: true });
+      selectedMemberIds.add(newId);
+
+      cedulaInput.value = '';
+      nameInput.value = '';
+      document.getElementById('external-student-panel').classList.add('hidden');
+
+      renderRosterSelector();
+      renderEvaluationCards();
+      showToast('Estudiante externo agregado y seleccionado.', 'success');
+    };
+
+    window.removeExternalStudent = function(studentId) {
+      externalStudents = externalStudents.filter((s) => s.id !== studentId);
+      selectedMemberIds.delete(studentId);
+      delete draftScores[studentId];
+      renderRosterSelector();
+      renderEvaluationCards();
+      showToast('Estudiante externo eliminado.', 'info');
+    };
+
+    function renderRosterSelector() {
+      const fullRoster = getFullRoster();
+      const grid = document.getElementById('roster-checkbox-grid');
+      const dropdown = document.getElementById('quick-add-student-select');
+      const countBadge = document.getElementById('selected-members-count');
+
+      countBadge.textContent = selectedMemberIds.size;
+
+      // Actualizar opciones del selector rápido (solo los no seleccionados)
+      dropdown.innerHTML = `<option value="">+ Selector rápido: añadir estudiante inscrito de la sección...</option>`;
+      fullRoster.forEach((student) => {
+        const isLockedSelf = !allowSelfEvaluation && currentEvaluatorId && student.id === currentEvaluatorId;
+        if (!selectedMemberIds.has(student.id) && !isLockedSelf) {
+          const opt = document.createElement('option');
+          opt.value = student.id;
+          opt.textContent = `${student.cedula} — ${student.name}`;
+          dropdown.appendChild(opt);
+        }
+      });
+
+      // Renderizar checkboxes
+      grid.innerHTML = '';
+      fullRoster.forEach((student) => {
+        const isChecked = selectedMemberIds.has(student.id);
+        const isSelfEvaluator = currentEvaluatorId && student.id === currentEvaluatorId;
+        const isLockedSelf = isSelfEvaluator && !allowSelfEvaluation;
+
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between gap-2 p-2.5 rounded-xl border transition ${
+          isLockedSelf
+            ? 'bg-amber-50/70 border-amber-300 opacity-85 cursor-not-allowed'
+            : isChecked
+            ? 'bg-uneg-50 border-uneg-600/50 shadow-2xs cursor-pointer'
+            : 'bg-white border-slate-200 hover:border-slate-300 cursor-pointer'
+        }`;
+
+        item.innerHTML = `
+          <label class="flex items-center gap-2.5 flex-1 ${isLockedSelf ? 'cursor-not-allowed' : 'cursor-pointer'} min-w-0">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} ${isLockedSelf ? 'disabled' : ''} onchange="toggleStudentSelection('${student.id}')"
+              class="w-4 h-4 rounded text-uneg-700 focus:ring-uneg-600 border-slate-300 shrink-0" />
+            <div class="truncate">
+              <p class="text-xs font-bold text-slate-800 truncate">${student.name}</p>
+              <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+                <span class="text-[11px] font-mono text-slate-500">${student.cedula}${student.defaultGroup ? ` • ${student.defaultGroup}` : ''}${student.isExternal ? ' • Externo' : ''}</span>
+                ${
+                  isLockedSelf
+                    ? `<span class="px-1.5 py-0.2 rounded bg-amber-200/80 text-amber-950 text-[10px] font-bold">Evaluador actual (excluido de autoevaluación)</span>`
+                    : ''
+                }
+              </div>
+            </div>
+          </label>
+          ${
+            student.isExternal
+              ? `<button type="button" onclick="removeExternalStudent('${student.id}')" title="Eliminar externo"
+                  class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition shrink-0">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>`
+              : ''
+          }
+        `;
+        grid.appendChild(item);
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. TARJETAS DE CALIFICACIÓN POR INTEGRANTE SELECCIONADO
+    // -------------------------------------------------------------------------
+    function getDraftForStudent(studentId) {
+      if (!draftScores[studentId]) {
+        draftScores[studentId] = {
+          dominio: 7,
+          oratoria: 5,
+          recursos: 5,
+          tiempo: 3,
+          observations: ''
+        };
+      }
+      return draftScores[studentId];
+    }
+
+    function renderEvaluationCards() {
+      updateContextBadge();
+      const container = document.getElementById('evaluation-cards-container');
+      const fullRoster = getFullRoster();
+      const selectedStudents = fullRoster.filter((s) => selectedMemberIds.has(s.id));
+
+      if (selectedStudents.length === 0) {
+        container.innerHTML = `
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+            <i data-lucide="users" class="w-8 h-8 text-amber-500 mx-auto mb-2"></i>
+            <p class="text-sm font-bold text-amber-900">No hay integrantes seleccionados para evaluar</p>
+            <p class="text-xs text-amber-700 mt-1">Marque al menos un estudiante en la lista superior para desplegar su tarjeta de calificación.</p>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = '';
+      selectedStudents.forEach((student, index) => {
+        const draft = getDraftForStudent(student.id);
+        const total = Number(draft.dominio) + Number(draft.oratoria) + Number(draft.recursos) + Number(draft.tiempo);
+        const weighted = ((total / 20) * 1.5).toFixed(2);
+        const isApproved = total >= 10;
+
+        const criteriaHtml = RUBRIC_CRITERIA.map((crit) => {
+          const val = draft[crit.key];
+          return `
+            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80">
+              <div class="flex items-center justify-between gap-2 mb-1.5">
+                <div>
+                  <label class="text-xs font-bold text-slate-800 block">${crit.label}</label>
+                  <span class="text-[11px] text-slate-500 leading-tight block">${crit.desc}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <input type="number" id="num-${student.id}-${crit.key}" min="0" max="${crit.max}" step="0.5" value="${val}"
+                    oninput="updateCriterionScore('${student.id}', '${crit.key}', ${crit.max}, 'num')"
+                    class="w-16 px-2 py-1 text-center font-extrabold text-sm text-uneg-900 bg-white border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-uneg-600" />
+                  <span class="text-xs font-semibold text-slate-400">/ ${crit.max}</span>
+                </div>
+              </div>
+              <input type="range" id="range-${student.id}-${crit.key}" min="0" max="${crit.max}" step="0.5" value="${val}"
+                oninput="updateCriterionScore('${student.id}', '${crit.key}', ${crit.max}, 'range')"
+                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uneg-700 mt-1" />
+            </div>
+          `;
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden';
+        card.innerHTML = `
+          <div class="bg-gradient-to-r from-uneg-900 to-uneg-800 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center font-extrabold text-sm">${index + 1}</span>
+              <div>
+                <h3 class="font-bold text-sm sm:text-base leading-tight">${student.name}</h3>
+                <span class="text-xs text-blue-200 font-mono">C.I. ${student.cedula}${student.defaultGroup ? ` • ${student.defaultGroup}` : ''}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 ml-auto">
+              <span id="status-badge-${student.id}" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-wide ${
+                isApproved
+                  ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40'
+                  : 'bg-red-500/25 text-red-200 border border-red-400/40'
+              }">
+                ${isApproved ? 'Aprobado' : 'Reprobado'}
+              </span>
+              <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-right">
+                <span class="text-[10px] uppercase tracking-wider text-blue-200 block">Nota (Base 20)</span>
+                <span id="total-20-${student.id}" class="text-base sm:text-lg font-extrabold text-emerald-300">${total.toFixed(1)}</span>
+                <span class="text-xs text-blue-100">/ 20</span>
+              </div>
+              <div class="bg-emerald-500/20 px-3 py-1.5 rounded-xl border border-emerald-400/30 text-right">
+                <span class="text-[10px] uppercase tracking-wider text-emerald-200 block">15% (1.50)</span>
+                <span id="weighted-${student.id}" class="text-base sm:text-lg font-extrabold text-white">${weighted}</span>
+              </div>
+              <button type="button" onclick="toggleStudentSelection('${student.id}')" title="Quitar de esta evaluación"
+                class="w-8 h-8 rounded-xl bg-white/10 hover:bg-red-500 text-white flex items-center justify-center transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              ${criteriaHtml}
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">
+                Observaciones / Retroalimentación <span class="text-slate-400 font-normal">(Opcional)</span>
+              </label>
+              <input type="text" id="obs-${student.id}" value="${draft.observations.replace(/"/g, '&quot;')}"
+                oninput="updateObservation('${student.id}', this.value)"
+                placeholder="Ej. Excelente dominio de los conceptos y claridad al responder..."
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/60 text-sm focus:bg-white focus:ring-2 focus:ring-uneg-600 outline-none transition" />
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    window.updateCriterionScore = function(studentId, key, maxVal, source) {
+      const rangeEl = document.getElementById(`range-${studentId}-${key}`);
+      const numEl = document.getElementById(`num-${studentId}-${key}`);
+      let val = parseFloat(source === 'range' ? rangeEl.value : numEl.value);
+
+      if (isNaN(val)) val = 0;
+      if (val < 0) val = 0;
+      if (val > maxVal) val = maxVal;
+
+      rangeEl.value = val;
+      numEl.value = val;
+
+      const draft = getDraftForStudent(studentId);
+      draft[key] = val;
+
+      const total = Number(draft.dominio) + Number(draft.oratoria) + Number(draft.recursos) + Number(draft.tiempo);
+      const weighted = ((total / 20) * 1.5).toFixed(2);
+      const isApproved = total >= 10;
+
+      document.getElementById(`total-20-${studentId}`).textContent = total.toFixed(1);
+      document.getElementById(`weighted-${studentId}`).textContent = weighted;
+
+      const statusBadge = document.getElementById(`status-badge-${studentId}`);
+      if (statusBadge) {
+        statusBadge.textContent = isApproved ? 'Aprobado' : 'Reprobado';
+        statusBadge.className = `px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-wide ${
+          isApproved
+            ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40'
+            : 'bg-red-500/25 text-red-200 border border-red-400/40'
+        }`;
+      }
+    };
+
+    window.updateObservation = function(studentId, value) {
+      const draft = getDraftForStudent(studentId);
+      draft.observations = value;
+    };
+
+    // -------------------------------------------------------------------------
+    // 5. ENVÍO DEL FORMULARIO DE COEVALUACIÓN
+    // -------------------------------------------------------------------------
+    document.getElementById('coeval-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const evaluatorSelectVal = document.getElementById('eval-student-select').value;
+      const evaluatorName = document.getElementById('eval-name').value.trim().toUpperCase();
+      const evaluatorCedula = document.getElementById('eval-cedula').value.trim().toUpperCase();
+      const evaluatorGroup = document.getElementById('eval-group').value;
+      const targetGroup = document.getElementById('target-group-select').value;
+      const targetTopic = getResolvedTopic();
+
+      if (!evaluatorSelectVal) {
+        showToast('Seleccione su nombre en el listado oficial de evaluadores.', 'warning');
+        document.getElementById('eval-student-select').focus();
+        return;
+      }
+      if (!evaluatorName || evaluatorName.length < 3) {
+        showToast('Por favor, ingrese sus Apellidos y Nombres.', 'warning');
+        document.getElementById('eval-name').focus();
+        return;
+      }
+      if (!evaluatorCedula || evaluatorCedula.length < 5) {
+        showToast('Por favor, ingrese su Cédula de Identidad.', 'warning');
+        document.getElementById('eval-cedula').focus();
+        return;
+      }
+      if (!evaluatorGroup) {
+        showToast('Seleccione el Grupo al que usted pertenece.', 'warning');
+        document.getElementById('eval-group').focus();
+        return;
+      }
+
+      const selectTopicVal = document.getElementById('target-topic-select').value;
+      if (selectTopicVal === 'CUSTOM' && !document.getElementById('custom-topic-input').value.trim()) {
+        showToast('Escriba el título del tema personalizado.', 'warning');
+        document.getElementById('custom-topic-input').focus();
+        return;
+      }
+
+      const fullRoster = getFullRoster();
+      const selectedStudents = fullRoster.filter((s) => selectedMemberIds.has(s.id));
+
+      if (selectedStudents.length === 0) {
+        showToast('Seleccione al menos un integrante del grupo para evaluar.', 'warning');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-70');
+
+      const evaluations = selectedStudents.map((student) => {
+        const draft = getDraftForStudent(student.id);
+        const total = Number((Number(draft.dominio) + Number(draft.oratoria) + Number(draft.recursos) + Number(draft.tiempo)).toFixed(2));
+        const weighted = Number(((total / 20) * 1.5).toFixed(2));
+        return {
+          studentId: student.id,
+          cedula: student.cedula,
+          name: student.name,
+          scores: {
+            dominio: Number(draft.dominio),
+            oratoria: Number(draft.oratoria),
+            recursos: Number(draft.recursos),
+            tiempo: Number(draft.tiempo)
+          },
+          total,
+          weighted,
+          observations: draft.observations.trim()
+        };
+      });
+
+      const payload = {
+        evaluatorName,
+        evaluatorCedula,
+        evaluatorGroup,
+        targetGroup,
+        targetTopic,
+        evaluations,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        if (useCloud && db && currentUser) {
+          const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'coevaluaciones_uneg');
+          await addDoc(colRef, payload);
+        } else {
+          payload.id = 'LOCAL-' + Date.now();
+          allSubmissions.unshift(payload);
+          saveLocalBackup();
+          updateCountersAndTables();
+        }
+
+        document.getElementById('coeval-form').classList.add('hidden');
+        document.getElementById('submission-success-card').classList.remove('hidden');
+        showToast('¡Coevaluación registrada correctamente!', 'success');
+      } catch (err) {
+        console.error('Error guardando coevaluación:', err);
+        payload.id = 'LOCAL-' + Date.now();
+        allSubmissions.unshift(payload);
+        saveLocalBackup();
+        updateCountersAndTables();
+        document.getElementById('coeval-form').classList.add('hidden');
+        document.getElementById('submission-success-card').classList.remove('hidden');
+        showToast('Guardado en respaldo local correctamente.', 'success');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-70');
+      }
+    });
+
+    window.resetFormForNewSubmission = function() {
+      draftScores = {};
+      document.getElementById('submission-success-card').classList.add('hidden');
+      document.getElementById('coeval-form').classList.remove('hidden');
+      renderEvaluationCards();
+    };
+
+    // -------------------------------------------------------------------------
+    // 6. PANEL DE TOTALIZACIÓN DOCENTE Y EXPORTACIÓN CSV
+    // -------------------------------------------------------------------------
+    function getFilteredSubmissions() {
+      const groupFilter = document.getElementById('filter-group').value;
+      const topicFilter = document.getElementById('filter-topic').value;
+
+      return allSubmissions.filter((sub) => {
+        const matchGroup = groupFilter === 'ALL' || sub.targetGroup === groupFilter;
+        const matchTopic = topicFilter === 'ALL' || sub.targetTopic === topicFilter;
+        return matchGroup && matchTopic;
+      });
+    }
+
+    function buildConsolidatedData(filteredSubs) {
+      const map = new Map();
+
+      filteredSubs.forEach((sub) => {
+        (sub.evaluations || []).forEach((ev) => {
+          // Agrupar por Cédula/Nombre + Grupo + Tema Evaluado
+          const key = `${ev.name}__${sub.targetGroup}__${sub.targetTopic}`;
+          if (!map.has(key)) {
+            map.set(key, {
+              cedula: ev.cedula || 'S/C',
+              name: ev.name,
+              group: sub.targetGroup,
+              topic: sub.targetTopic,
+              count: 0,
+              sumDominio: 0,
+              sumOratoria: 0,
+              sumRecursos: 0,
+              sumTiempo: 0,
+              sumTotal: 0
+            });
+          }
+          const rec = map.get(key);
+          rec.count += 1;
+          rec.sumDominio += Number(ev.scores.dominio || 0);
+          rec.sumOratoria += Number(ev.scores.oratoria || 0);
+          rec.sumRecursos += Number(ev.scores.recursos || 0);
+          rec.sumTiempo += Number(ev.scores.tiempo || 0);
+          rec.sumTotal += Number(ev.total || 0);
+        });
+      });
+
+      return Array.from(map.values())
+        .map((r) => {
+          const avgDominio = r.sumDominio / r.count;
+          const avgOratoria = r.sumOratoria / r.count;
+          const avgRecursos = r.sumRecursos / r.count;
+          const avgTiempo = r.sumTiempo / r.count;
+          const avgTotal = r.sumTotal / r.count;
+          const weighted = (avgTotal / 20) * 1.5;
+          return {
+            ...r,
+            avgDominio,
+            avgOratoria,
+            avgRecursos,
+            avgTiempo,
+            avgTotal,
+            weighted
+          };
+        })
+        .sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
+    }
+
+    window.renderTeacherDashboard = function() {
+      const filteredSubs = getFilteredSubmissions();
+      const consolidated = buildConsolidatedData(filteredSubs);
+
+      // Actualizar KPIs
+      document.getElementById('kpi-total-submissions').textContent = filteredSubs.length;
+
+      const avg20 =
+        consolidated.length > 0
+          ? consolidated.reduce((acc, item) => acc + item.avgTotal, 0) / consolidated.length
+          : 0;
+      const avgWeighted = (avg20 / 20) * 1.5;
+
+      document.getElementById('kpi-avg-20').innerHTML = `${avg20.toFixed(2)} <span class="text-sm font-semibold text-slate-400">/ 20</span>`;
+      document.getElementById('kpi-avg-weighted').innerHTML = `${avgWeighted.toFixed(2)} <span class="text-sm font-semibold text-slate-400">/ 1.50</span>`;
+      document.getElementById('consolidated-row-count').textContent = `${consolidated.length} registros consolidados`;
+
+      // Renderizar Tabla Consolidada
+      const tbody = document.getElementById('consolidated-table-body');
+      if (consolidated.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="11" class="py-8 px-4 text-center text-slate-500 text-xs sm:text-sm">
+              No hay coevaluaciones registradas con los filtros seleccionados.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = consolidated
+          .map(
+            (row) => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-3 px-3.5 font-mono text-xs font-semibold text-slate-700 whitespace-nowrap">${row.cedula}</td>
+            <td class="py-3 px-3.5 font-bold text-slate-900">${row.name}</td>
+            <td class="py-3 px-3 whitespace-nowrap">
+              <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">${row.group}</span>
+            </td>
+            <td class="py-3 px-3 text-xs text-slate-600 max-w-xs">${row.topic}</td>
+            <td class="py-3 px-2.5 text-center">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-uneg-900">${row.count}</span>
+            </td>
+            <td class="py-3 px-2.5 text-center font-medium text-slate-700">${row.avgDominio.toFixed(2)}</td>
+            <td class="py-3 px-2.5 text-center font-medium text-slate-700">${row.avgOratoria.toFixed(2)}</td>
+            <td class="py-3 px-2.5 text-center font-medium text-slate-700">${row.avgRecursos.toFixed(2)}</td>
+            <td class="py-3 px-2.5 text-center font-medium text-slate-700">${row.avgTiempo.toFixed(2)}</td>
+            <td class="py-3 px-3.5 text-center font-extrabold text-sm text-uneg-900 bg-blue-50/50">${row.avgTotal.toFixed(2)}</td>
+            <td class="py-3 px-3.5 text-center font-extrabold text-sm text-emerald-700 bg-emerald-50/50">${row.weighted.toFixed(2)}</td>
+          </tr>
+        `
+          )
+          .join('');
+      }
+
+      // Renderizar Tabla de Auditoría Individual
+      const auditBody = document.getElementById('audit-table-body');
+      let totalAuditRows = 0;
+      const auditHtmlRows = [];
+
+      filteredSubs.forEach((sub) => {
+        const dateFormatted = new Date(sub.createdAt).toLocaleString('es-VE', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        (sub.evaluations || []).forEach((ev, idx) => {
+          totalAuditRows += 1;
+          auditHtmlRows.push(`
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-2.5 px-3.5 text-slate-500 whitespace-nowrap">${dateFormatted}</td>
+              <td class="py-2.5 px-3.5">
+                <span class="font-bold text-slate-800 block">${sub.evaluatorName}</span>
+                <span class="text-[11px] text-slate-500">${sub.evaluatorCedula} • ${sub.evaluatorGroup}</span>
+              </td>
+              <td class="py-2.5 px-3.5">
+                <span class="font-bold text-uneg-900 block">${ev.name}</span>
+                <span class="text-[11px] font-mono text-slate-500">${ev.cedula}</span>
+              </td>
+              <td class="py-2.5 px-3">
+                <span class="font-bold text-slate-700 block">${sub.targetGroup}</span>
+                <span class="text-[11px] text-slate-500 line-clamp-1">${sub.targetTopic}</span>
+              </td>
+              <td class="py-2.5 px-2.5 text-center font-mono text-[11px] text-slate-700 whitespace-nowrap">
+                ${ev.scores.dominio} / ${ev.scores.oratoria} / ${ev.scores.recursos} / ${ev.scores.tiempo}
+              </td>
+              <td class="py-2.5 px-3 text-center font-extrabold text-uneg-900 whitespace-nowrap">
+                ${Number(ev.total).toFixed(1)} <span class="text-[10px] font-normal text-slate-400">(${Number(ev.weighted).toFixed(2)})</span>
+              </td>
+              <td class="py-2.5 px-3.5 text-slate-600 max-w-xs">${ev.observations || '—'}</td>
+              <td class="py-2.5 px-3 text-center">
+                ${
+                  idx === 0
+                    ? `<button type="button" onclick="deleteSubmission('${sub.id}')" title="Eliminar planilla completa de este evaluador"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold transition">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <span>Eliminar</span>
+                      </button>`
+                    : `<span class="text-[10px] text-slate-400">Misma planilla</span>`
+                }
+              </td>
+            </tr>
+          `);
+        });
+      });
+
+      document.getElementById('audit-row-count').textContent = `${totalAuditRows} evaluaciones individuales`;
+
+      if (auditHtmlRows.length === 0) {
+        auditBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="py-6 px-4 text-center text-slate-500">
+              No hay registros individuales en el historial para el filtro actual.
+            </td>
+          </tr>
+        `;
+      } else {
+        auditBody.innerHTML = auditHtmlRows.join('');
+      }
+
+      if (window.lucide) lucide.createIcons();
+    };
+
+    window.deleteSubmission = function(submissionId) {
+      openConfirmModal(
+        'Eliminar registro de coevaluación',
+        '¿Desea eliminar esta planilla de evaluación? Esta acción actualizará inmediatamente los promedios consolidados.',
+        async () => {
+          try {
+            if (useCloud && db && !submissionId.startsWith('LOCAL-')) {
+              await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'coevaluaciones_uneg', submissionId));
+            }
+            allSubmissions = allSubmissions.filter((s) => s.id !== submissionId);
+            saveLocalBackup();
+            updateCountersAndTables();
+            showToast('Registro eliminado correctamente.', 'success');
+          } catch (err) {
+            console.error('Error al eliminar:', err);
+            showToast('No se pudo eliminar el registro.', 'error');
+          }
+        }
+      );
+    };
+
+    // Exportar Resumen Consolidado CSV (Punto y coma + BOM UTF-8)
+    window.exportConsolidatedCSV = function() {
+      const filteredSubs = getFilteredSubmissions();
+      const consolidated = buildConsolidatedData(filteredSubs);
+
+      if (consolidated.length === 0) {
+        showToast('No hay registros consolidados para exportar.', 'warning');
+        return;
+      }
+
+      const headers = [
+        'Cédula',
+        'Apellidos y Nombres',
+        'Grupo Evaluado',
+        'Tema Evaluado',
+        'Cantidad Evaluaciones',
+        'Promedio Dominio (7)',
+        'Promedio Oratoria (5)',
+        'Promedio Recursos (5)',
+        'Promedio Tiempo (3)',
+        'Nota Promedio Final (Base 20)',
+        'Ponderación 15% (Base 1.50)'
+      ];
+
+      const rows = consolidated.map((r) => [
+        `"${r.cedula}"`,
+        `"${r.name}"`,
+        `"${r.group}"`,
+        `"${r.topic.replace(/"/g, '""')}"`,
+        r.count,
+        r.avgDominio.toFixed(2).replace('.', ','),
+        r.avgOratoria.toFixed(2).replace('.', ','),
+        r.avgRecursos.toFixed(2).replace('.', ','),
+        r.avgTiempo.toFixed(2).replace('.', ','),
+        r.avgTotal.toFixed(2).replace('.', ','),
+        r.weighted.toFixed(2).replace('.', ',')
+      ]);
+
+      downloadCSV(headers, rows, 'UNEG_Consolidado_Coevaluacion_2026.csv');
+      showToast('Resumen consolidado exportado a CSV.', 'success');
+    };
+
+    // Exportar Detalle Individual CSV
+    window.exportDetailedCSV = function() {
+      const filteredSubs = getFilteredSubmissions();
+      if (filteredSubs.length === 0) {
+        showToast('No hay registros detallados para exportar.', 'warning');
+        return;
+      }
+
+      const headers = [
+        'Fecha y Hora',
+        'Evaluador Nombre',
+        'Evaluador Cédula',
+        'Evaluador Grupo',
+        'Grupo Evaluado',
+        'Tema Evaluado',
+        'Estudiante Evaluado Cédula',
+        'Estudiante Evaluado Nombre',
+        'Dominio (7)',
+        'Oratoria (5)',
+        'Recursos (5)',
+        'Tiempo (3)',
+        'Nota Total (20)',
+        'Ponderación 15% (1.50)',
+        'Observaciones'
+      ];
+
+      const rows = [];
+      filteredSubs.forEach((sub) => {
+        const fecha = new Date(sub.createdAt).toLocaleString('es-VE');
+        (sub.evaluations || []).forEach((ev) => {
+          rows.push([
+            `"${fecha}"`,
+            `"${sub.evaluatorName.replace(/"/g, '""')}"`,
+            `"${sub.evaluatorCedula}"`,
+            `"${sub.evaluatorGroup}"`,
+            `"${sub.targetGroup}"`,
+            `"${sub.targetTopic.replace(/"/g, '""')}"`,
+            `"${ev.cedula}"`,
+            `"${ev.name.replace(/"/g, '""')}"`,
+            String(ev.scores.dominio).replace('.', ','),
+            String(ev.scores.oratoria).replace('.', ','),
+            String(ev.scores.recursos).replace('.', ','),
+            String(ev.scores.tiempo).replace('.', ','),
+            String(ev.total).replace('.', ','),
+            String(ev.weighted).replace('.', ','),
+            `"${(ev.observations || '').replace(/"/g, '""')}"`
+          ]);
+        });
+      });
+
+      downloadCSV(headers, rows, 'UNEG_Detalle_Auditoría_Coevaluacion_2026.csv');
+      showToast('Detalle completo exportado a CSV.', 'success');
+    };
+
+    function downloadCSV(headers, rows, filename) {
+      const csvString = '\uFEFF' + [headers.join(';'), ...rows.map((r) => r.join(';'))].join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. UTILIDADES DE INTERFAZ (PESTAÑAS, TOASTS, PORTAPAPELES Y MODAL)
+    // -------------------------------------------------------------------------
+    window.switchTab = function(tab) {
+      const studentView = document.getElementById('view-student');
+      const teacherView = document.getElementById('view-teacher');
+      const tabStudent = document.getElementById('tab-student');
+      const tabTeacher = document.getElementById('tab-teacher');
+
+      if (tab === 'student') {
+        studentView.classList.remove('hidden');
+        teacherView.classList.add('hidden');
+        tabStudent.className = 'flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition bg-uneg-800 text-white shadow-sm';
+        tabTeacher.className = 'flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:bg-slate-100';
+      } else {
+        studentView.classList.add('hidden');
+        teacherView.classList.remove('hidden');
+        tabTeacher.className = 'flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition bg-uneg-800 text-white shadow-sm';
+        tabStudent.className = 'flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:bg-slate-100';
+        renderTeacherDashboard();
+      }
+    };
+
+    window.copyShareLink = function() {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = window.location.href;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('Enlace copiado. Compártelo con los estudiantes.', 'success');
+      } catch (err) {
+        showToast('Copie el enlace directamente desde la barra de direcciones.', 'info');
+      }
+      document.body.removeChild(tempInput);
+    };
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const palette = {
+        success: 'bg-emerald-800 text-white border-emerald-600',
+        error: 'bg-red-800 text-white border-red-600',
+        warning: 'bg-amber-800 text-white border-amber-600',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl border text-xs sm:text-sm font-medium transition-all ${palette[type] || palette.info}`;
+      toast.innerHTML = `<span class="flex-1">${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 250);
+      }, 3200);
+    }
+
+    function openConfirmModal(title, message, onConfirm) {
+      const modal = document.getElementById('confirm-modal');
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+
+      document.getElementById('confirm-cancel-btn').onclick = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      };
+      document.getElementById('confirm-ok-btn').onclick = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        if (onConfirm) onConfirm();
+      };
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    // Inicialización al cargar la página
+    renderRosterSelector();
+    renderEvaluationCards();
+    initStorageAndCloud();
+  </script>
+</body>
+</html>
